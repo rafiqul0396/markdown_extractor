@@ -75,17 +75,29 @@ else:
 paragraphs = doc.get_paragraphs()
 print("\nParagraphs:")
 if paragraphs:
-    for i, para in enumerate(paragraphs):
-        print(f"Para {i+1} (Line {para['line']}): {para['text'][:100]}...") # Print first 100 chars
+    for i, para_content in enumerate(paragraphs): # para_content is a string
+        # Note: get_paragraphs() returns a list of content strings.
+        # For line numbers, you might need to use get_sequential_elements() or analyze tokens.
+        print(f"Para {i+1}: {para_content[:100]}...") # Print first 100 chars
 else:
     print("No paragraphs found.")
 
 # Get all links
-links = doc.get_links()
+links_data = doc.get_links() # Returns a dictionary with "Text Links" and "Image Links" keys
 print("\nLinks:")
-if links:
-    for link in links:
-        print(f"- Text: {link['text']}, URL: {link['url']} (Line {link['line']})")
+if links_data:
+    # links_data is a dictionary, e.g., {"Text Links": [...], "Image Links": [...]}
+    # Iterate through all link types and then all links of that type
+    for link_type, link_list in links_data.items():
+        print(f"  {link_type}:")
+        if link_list:
+            for link_detail in link_list:
+                if link_type == "Text Links":
+                    print(f"  - Text: {link_detail.get('text', 'N/A')}, URL: {link_detail['url']} (Line {link_detail.get('line', 'N/A')})")
+                else: # Image Links
+                    print(f"  - Alt Text: {link_detail.get('alt_text', 'N/A')}, URL: {link_detail['url']} (Line {link_detail.get('line', 'N/A')})")
+        else:
+            print("    No links of this type found.")
 else:
     print("No links found.")
 
@@ -95,15 +107,17 @@ print("\nCode Blocks:")
 if code_blocks:
     for i, block in enumerate(code_blocks):
         lang = block.get('language', 'N/A')
-        print(f"Block {i+1} (Language: {lang}, Line {block['line']}):")
-        print(block['code'][:150] + "..." if len(block['code']) > 150 else block['code'])
+        # Use 'start_line' for line number and 'content' for code text
+        print(f"Block {i+1} (Language: {lang}, Line {block.get('start_line', 'N/A')}):")
+        code_content = block.get('content', '')
+        print(code_content[:150] + "..." if len(code_content) > 150 else code_content)
 else:
     print("No code blocks found.")
 
-# Get raw AST-like structure (for advanced use)
-# ast_structure = doc.get_ast()
-# print("\nAST Structure (excerpt):")
-# print(str(ast_structure)[:500] + "...")
+# Get sequential elements (for advanced use)
+# seq_elements = doc.get_sequential_elements()
+# print("\nSequential Elements (excerpt):")
+# print(str(seq_elements[:3]))
 ```
 
 **2. Analyzing Markdown from a String:**
@@ -189,24 +203,41 @@ This manual provides guidance on how to effectively use the library for common t
 
 **Task 1: Getting Document Statistics**
 Use the `get_summary()` method on a `MarkdownDocument` object.
+
 ```python
 doc = MarkdownDocument.from_file("my_document.md")
 summary = doc.get_summary()
-print(f"Word Count: {summary['word_count']}")
-print(f"Paragraph Count: {summary['paragraph_count']}")
+print(f"Word Count: {summary['words']}") 
+print(f"Character Count: {summary['characters']}") 
+print(f"Paragraph Count: {summary['paragraphs']}") 
 ```
 
 **Task 2: Extracting All Links from a Document**
 Use the `get_links()` method.
+
 ```python
 doc = MarkdownDocument.from_file("my_document.md")
-links = doc.get_links()
-for link in links:
-    print(f"Link Text: {link['text']}, URL: {link['url']}")
+links_data = doc.get_links() # Returns a dictionary with "Text Links" and "Image Links" keys
+if links_data:
+    # links_data is a dictionary, e.g., {"Text Links": [...], "Image Links": [...]}
+    # Iterate through all link types and then all links of that type
+    for link_type, link_list in links_data.items():
+        print(f"  {link_type}:")
+        if link_list:
+            for link_detail in link_list:
+                if link_type == "Text Links":
+                    print(f"  - Text: {link_detail.get('text', 'N/A')}, URL: {link_detail['url']} (Line {link_detail.get('line', 'N/A')})")
+                else: # Image Links
+                    print(f"  - Alt Text: {link_detail.get('alt_text', 'N/A')}, URL: {link_detail['url']} (Line {link_detail.get('line', 'N/A')})")
+        else:
+            print("    No links of this type found.")
+else:
+    print("No links found.")
 ```
 
 **Task 3: Finding Specific Headers**
 Iterate through the results of `get_headers()` and filter by level or text.
+
 ```python
 doc = MarkdownDocument.from_file("my_document.md")
 h2_headers = [h for h in doc.get_headers() if h['level'] == 2]
@@ -217,14 +248,14 @@ for h2 in h2_headers:
 
 **Task 4: Converting an Online Article to Markdown for Offline Reading**
 Use `MarkdownSiteConverter` with `max_depth=0` pointing to the article's URL.
+
 ```python
 from markdown_analyzer_lib import MarkdownSiteConverter
 # article_converter = MarkdownSiteConverter(
 #     base_url="URL_OF_THE_ARTICLE_HERE",
-#     max_depth=0,
-#     output_file="article.md"
+#     max_depth=0
 # )
-# article_converter.convert_site_to_markdown()
+# article_converter.convert_site_to_markdown(output_file="article.md")
 # print("Article saved to article.md")
 ```
 

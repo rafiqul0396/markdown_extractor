@@ -273,6 +273,10 @@ class MarkdownAnalyzer:
         self._parse_inline_tokens()
 
     @classmethod
+    def from_file(cls, file_path: str, encoding: str ='utf-8') -> 'MarkdownAnalyzer':
+        return cls(file_path=file_path, encoding=encoding)
+
+    @classmethod
     def from_url(cls, url: str, encoding: str ='utf-8') -> 'MarkdownAnalyzer':
         try:
             response = requests.get(url, timeout=10); response.raise_for_status()
