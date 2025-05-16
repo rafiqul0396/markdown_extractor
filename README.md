@@ -1,4 +1,4 @@
-# Markdown Analyzer Library
+# Markdown Analyzer Library v0.2.0
 
 A Python library for parsing, analyzing, and converting Markdown and MDX documents. It also includes capabilities to scrape websites and convert their content into structured Markdown.
 
