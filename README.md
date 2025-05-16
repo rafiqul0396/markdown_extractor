@@ -2,6 +2,11 @@
 
 A Python library for parsing, analyzing, and converting Markdown and MDX documents. It also includes capabilities to scrape websites and convert their content into structured Markdown.
 
+## Version History
+
+- **v0.2.0** (May 16, 2025): Fixed documentation inconsistencies, improved error handling, and updated GitHub repository links
+- **v0.1.1**: Initial release with core functionality
+
 ## Features
 
 -   Parse Markdown and MDX into an Abstract Syntax Tree (AST)-like structure.
